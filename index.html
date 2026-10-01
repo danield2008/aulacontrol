@@ -35,11 +35,8 @@ async function log(action,entity_type,entity_id,details){await db.from('activity
 async function newTeacher(){if(profile.role!=='director')return alert('Solo el Director puede crear profesores.');openModal('Nuevo profesor',`
 <div class="field"><label>Nombre completo</label><input id="tName" placeholder="Nombre y apellidos"></div>
 <div class="field"><label>Nombre de usuario</label><input id="tUser" placeholder="profesor1"></div>
-<p class="muted" style="margin-top:12px">La cuenta de acceso y contraseña se crearán desde el sistema de usuarios de Supabase. Aquí guardamos el perfil y permisos.</p>
-<button class="btn full" onclick="saveTeacher()">Guardar perfil</button>`)}
-async function saveTeacher(){const full_name=document.getElementById('tName').value.trim(),username=document.getElementById('tUser').value.trim().toLowerCase();if(!full_name||!username)return alert('Completa todos los campos.');const {data:existing}=await db.from('profiles').select('id').eq('username',username).maybeSingle();if(existing)return alert('Ese nombre de usuario ya existe.');const fakeId=crypto.randomUUID();const {error}=await db.from('profiles').insert({id:fakeId,username,full_name,role:'profesor',active:true});if(error)return alert('No se pudo guardar: '+error.message);await log('crear','profiles',fakeId,{username,full_name});closeModal();loadData()}
-async function assignTeacher(classId){if(profile.role!=='director')return;const {data:teachers}=await db.from('profiles').select('id,full_name,username').eq('role','profesor').eq('active',true).order('full_name');openModal('Asignar profesor',`
-<div class="field"><label>Profesor</label><select id="assignT" style="width:100%;padding:11px;border:1px solid #e1e5ee;border-radius:9px"><option value="">Sin asignar</option>${(teachers||[]).map(t=>'<option value="'+t.id+'">'+esc(t.full_name)+' ('+esc(t.username||'')+')</option>').join('')}</select></div>
-<button class="btn full" onclick="saveAssignment(${classId})">Guardar asignación</button>`)}
-async function saveAssignment(classId){const teacher_id=document.getElementById('assignT').value||null;const {error}=await db.from('classes').update({teacher_id}).eq('id',classId);if(error)return alert('No se pudo asignar: '+error.message);await log('asignar','classes',classId,{teacher_id});closeModal();loadData()}
-</script></body></html>
+<div class="field"><label>Contraseña inicial</label><input id="tPass" type="password" placeholder="Mínimo 8 caracteres"></div>
+<p class="muted" style="margin-top:12px">La creación de la cuenta se realizará de forma segura desde el sistema de autenticación.</p>
+<button class="btn full" onclick="saveTeacher()">Crear profesor</button>`)}
+async function saveTeacher(){alert('La creación automática de cuentas necesita una función segura de servidor. He bloqueado esta operación para evitar crear un perfil inválido. Tu Director funciona correctamente; esta parte la terminaremos con la conexión segura de usuarios.')}
+>
